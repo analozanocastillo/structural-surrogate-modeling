@@ -1,6 +1,6 @@
-# Cantilever Beam: FEM and Experimental Validation
+# Structural Surrogate Modeling
 
-A reproducible study of how an added point mass changes the natural frequencies of a cantilever beam. The project translates the finite element model (FEM) supplied with the [Leibniz Universität Hannover cantilever beam dataset](https://data.uni-hannover.de/en/dataset/cantilever-beam-dataset-for-structural-change-localisation) from MATLAB to Python, checks numerical agreement, and compares FEM predictions with measured modal frequencies.
+This project develops a workflow for machine learning surrogates of structural simulations. Its current case study examines how an added point mass changes the natural frequencies of a cantilever beam. It translates the finite element model (FEM) supplied with the [Leibniz Universität Hannover cantilever beam dataset](https://data.uni-hannover.de/en/dataset/cantilever-beam-dataset-for-structural-change-localisation) from MATLAB to Python, checks numerical agreement, and compares FEM predictions with measured modal frequencies.
 
 The longer-term objective is to use the Python FEM to generate training examples for a machine learning surrogate that maps **mass and position** to natural frequencies. That dataset generation and surrogate training have **not yet been implemented**. The current repository establishes and evaluates the numerical baseline first.
 
@@ -36,7 +36,7 @@ These are results from the executed [validation notebook](notebooks/hannover_val
 ## Repository structure
 
 ```text
-ML_Structural/
+structural-surrogate-modeling/
 ├── README.md                         Project scope, results, and instructions
 ├── Dockerfile                        Python/JupyterLab image definition
 ├── compose.yaml                      Local notebook service on port 8888
