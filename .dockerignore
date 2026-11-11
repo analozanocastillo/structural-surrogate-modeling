@@ -1,0 +1,12 @@
+.git
+.venv
+.DS_Store
+**/__pycache__
+**/.ipynb_checkpoints
+data/raw
+data/extracted
+results
+docs
+outputs
+work
+*.part
