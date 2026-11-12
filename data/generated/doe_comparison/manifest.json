@@ -1,0 +1,45 @@
+{
+  "purpose": "Matched-budget grid versus LHD on the unchanged Hannover FEM",
+  "csv_sha256": "79b31a7ca1ebc08f6cdb59eb34a3420a8c880e34c15e782560415d095174d2b4",
+  "mat_sha256": "fb6337114290bda141eaea073f20e04ac3043f7b34f008f7194344a9e0886238",
+  "model_sha256": "d39919d43a47582b840c29b3a4110ee7c734992fdec416e6ca100306ce4c2ddb",
+  "budgets": [
+    200,
+    400
+  ],
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "grid": "20 or 40 evenly spaced allowed nodes x 10 evenly spaced original mass levels; includes four corners",
+  "lhd": "SciPy LatinHypercube d=2, scramble=True, rng=seed, budget-4 points plus four corners; positions quantized to allowed integer FEM nodes, masses continuous 1-50 g",
+  "validation_positions_cm": [
+    30,
+    50,
+    70,
+    90,
+    110
+  ],
+  "test_positions_cm": [
+    40,
+    60,
+    80,
+    100
+  ],
+  "edge_test_position_cm": [
+    120
+  ],
+  "mlp": "2-32-32-6 tanh, Adam 0.003, batch 128, max 1500 epochs, patience 120, train-only scaling, validation checkpoint",
+  "experimental_data_role": "evaluation only; 34 added-mass cases, paired shift estimates averaged per case",
+  "versions": {
+    "python": "3.10.18",
+    "numpy": "1.26.4",
+    "scipy": "1.15.3",
+    "torch": "2.2.2",
+    "pandas": "2.3.3"
+  },
+  "models_compared": [
+    "MLP"
+  ]
+}

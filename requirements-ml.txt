@@ -1,0 +1,12 @@
+# Reproduces the MLP and DOE notebooks on Python 3.10 (CPU execution).
+# This is separate from requirements.txt because the FEM-only Docker image
+# intentionally does not install PyTorch.
+numpy==1.26.4
+scipy==1.15.3
+pandas==2.3.3
+matplotlib==3.10.9
+torch==2.2.2
+ipykernel==7.3.0
+nbclient==0.11.0
+jupyterlab==4.6.6
+pytest==9.2.0

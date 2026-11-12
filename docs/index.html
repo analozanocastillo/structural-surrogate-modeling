@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore the Hannover cantilever beam FEM, measured frequencies, and a grid versus Latin hypercube MLP experiment.">
+  <title>Structural Surrogate Modeling — Experiment Atlas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Structural Surrogate Modeling home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span>STRUCTURAL<span class="brand-separator">/</span>SURROGATE</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#workflow">Workflow</a>
+      <a href="#sampling">Sampling</a>
+      <a href="#accuracy">Accuracy</a>
+      <a href="#measurements">Measurements</a>
+      <a class="nav-source" href="#reproduce">Reproduce ↗</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero section-shell" id="top">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span> HANNOVER CANTILEVER BEAM · INTERACTIVE STUDY</div>
+        <h1>From a physical beam<br>to a <em>learned response.</em></h1>
+        <p class="hero-lead">Move through the evidence behind a structural surrogate: a Python finite element model, measured vibration data, and an MLP trained on two alternative sampling designs.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#sampling">Explore the experiment <span aria-hidden="true">↗</span></a>
+          <a class="button button-secondary" href="#reproduce">Download &amp; reproduce</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="Illustration of a cantilever beam with an added mass and three vibration shapes" role="img">
+        <div class="visual-topline"><span>FINITE ELEMENT STUDY</span><span>01 / 03</span></div>
+        <svg viewBox="0 0 560 340" aria-hidden="true" focusable="false">
+          <defs>
+            <pattern id="clamp" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#8eaaa9" stroke-width="2"/></pattern>
+            <linearGradient id="beamGrad" x1="0" x2="1"><stop offset="0" stop-color="#194852"/><stop offset="1" stop-color="#2b817c"/></linearGradient>
+          </defs>
+          <rect x="40" y="100" width="28" height="150" fill="url(#clamp)"/>
+          <line x1="68" y1="176" x2="510" y2="176" stroke="url(#beamGrad)" stroke-width="10" stroke-linecap="round"/>
+          <path d="M68 176 C180 176 295 200 510 245" fill="none" stroke="#70bfaf" stroke-width="2.5" stroke-dasharray="7 8"/>
+          <path d="M68 176 C170 153 247 145 321 176 S440 207 510 176" fill="none" stroke="#f2a56e" stroke-width="2.5" stroke-dasharray="7 8"/>
+          <line x1="365" y1="103" x2="365" y2="171" stroke="#ca6d46" stroke-width="2" stroke-dasharray="4 5"/>
+          <circle cx="365" cy="176" r="16" fill="#ca6d46" stroke="#fff5e9" stroke-width="4"/>
+          <text x="330" y="93" fill="#9f5237" font-family="ui-monospace, monospace" font-size="13">added mass</text>
+          <text x="62" y="276" fill="#547478" font-family="ui-monospace, monospace" font-size="12">CLAMPED</text>
+          <text x="462" y="276" fill="#547478" font-family="ui-monospace, monospace" font-size="12">FREE END</text>
+          <path d="M68 302 H510" stroke="#b4c8c5" stroke-width="1"/>
+          <path d="M68 298 V306 M510 298 V306" stroke="#b4c8c5" stroke-width="1"/>
+          <text x="256" y="321" fill="#547478" font-family="ui-monospace, monospace" font-size="12">120 cm</text>
+        </svg>
+        <div class="visual-caption"><span class="signal-dot"></span> Change mass and position · observe six frequencies</div>
+      </div>
+    </section>
+
+    <section class="overview section-shell" id="workflow">
+      <div class="section-heading compact"><span class="section-index">01 / WORKFLOW</span><h2>One chain of evidence.</h2></div>
+      <div class="workflow-grid">
+        <article class="workflow-step"><span class="step-number">A</span><h3>Translate the FEM</h3><p>The supplied MATLAB beam model is reproduced in Python. Selected matrices and frequencies agree to numerical precision.</p><span class="step-foot">MODEL → MODEL</span></article>
+        <article class="workflow-step"><span class="step-number">B</span><h3>Check the physics</h3><p>Measured modal shifts differ from the FEM. That discrepancy exists before the neural network is trained.</p><span class="step-foot">MODEL → MEASUREMENT</span></article>
+        <article class="workflow-step"><span class="step-number">C</span><h3>Train the MLP</h3><p>A network learns six FEM frequencies from added mass and position. Grid and LHD decide which FEM cases it sees.</p><span class="step-foot">SAMPLES → SURROGATE</span></article>
+      </div>
+      <div class="stat-strip" aria-label="Study sizes">
+        <div><strong>1,176</strong><span>synthetic FEM cases</span></div>
+        <div><strong>34</strong><span>measured configurations</span></div>
+        <div><strong>6</strong><span>predicted frequencies</span></div>
+        <div><strong>3</strong><span>training seeds per DOE</span></div>
+      </div>
+      <div class="parity-strip"><span>MATLAB ↔ PYTHON FEM CHECK</span><strong>1.65 × 10<sup>−6</sup> Hz</strong><p>Maximum frequency difference across six checked mass–position configurations. The assembled mass matrix matches exactly.</p><a href="../notebooks/hannover_validacion_fem.ipynb">View validation ↗</a></div>
+    </section>
+
+    <section class="experiment section-shell" id="sampling">
+      <div class="section-heading"><div><span class="section-index">02 / SAMPLING DESIGN</span><h2>Same FEM budget.<br><em>Different coverage.</em></h2></div><p>Choose a training budget. Each dot is one FEM configuration fed to the MLP. Both designs contain the four domain corners; the LHD spreads its other points across mass and position.</p></div>
+      <div class="control-bar" aria-label="Sampling controls">
+        <fieldset class="segmented"><legend>FEM training cases</legend><button type="button" data-budget="200" aria-pressed="true">200 cases</button><button type="button" data-budget="400" aria-pressed="false">400 cases</button></fieldset>
+        <label class="select-wrap">LHD draw <select id="seedSelect"><option value="11">Seed 11</option><option value="22">Seed 22</option><option value="33">Seed 33</option></select></label>
+      </div>
+      <div class="chart-pair">
+        <figure class="chart-card"><figcaption><span class="chart-tag grid-tag">GRID</span><strong>Regular combinations</strong></figcaption><svg id="gridScatter" class="scatter" role="img" aria-label="Grid design points by position and mass"></svg><p class="chart-note" id="gridCount"></p></figure>
+        <figure class="chart-card"><figcaption><span class="chart-tag lhd-tag">LHD + CORNERS</span><strong>Stratified combinations</strong></figcaption><svg id="lhdScatter" class="scatter" role="img" aria-label="Latin hypercube design points by position and mass"></svg><p class="chart-note" id="lhdCount"></p></figure>
+      </div>
+      <p class="method-note">Positions are discrete FEM nodes. LHD masses are continuous; the grid uses ten mass levels. The comparison tests these complete designs, including that difference.</p>
+    </section>
+
+    <section class="accuracy section-shell" id="accuracy">
+      <div class="section-heading"><div><span class="section-index">03 / SURROGATE ACCURACY</span><h2>How close is the MLP<br>to its <em>FEM teacher?</em></h2></div><p>Mean absolute error in hertz. Interior test positions are 40, 60, 80 and 100 cm. The 120 cm position is evaluated separately at the free end.</p></div>
+      <div class="control-bar slim"><label class="select-wrap">Frequency shown <select id="modeSelect"><option value="all">Mean of six modes</option><option value="1">Mode 1</option><option value="2">Mode 2</option><option value="3">Mode 3</option><option value="4">Mode 4</option><option value="5">Mode 5</option><option value="6">Mode 6</option></select></label><span class="legend"><i class="key grid-key"></i> Grid <i class="key lhd-key"></i> LHD <i class="range-key"></i> seed range</span></div>
+      <div class="chart-card wide"><svg id="accuracyChart" class="accuracy-chart" role="img" aria-label="MLP error for grid and Latin hypercube designs at interior and edge positions"></svg></div>
+      <div class="metric-grid" id="metricGrid" aria-live="polite"></div>
+      <p class="method-note">Dots show the average of three training runs; thin lines show the observed minimum and maximum. They are not confidence intervals. A separately retrained 966-case grid model is shown as context.</p>
+    </section>
+
+    <section class="measurements section-shell" id="measurements">
+      <div class="section-heading"><div><span class="section-index">04 / PHYSICAL CHECK</span><h2>What the measurements<br><em>still tell us.</em></h2></div><p>The 34 measured configurations are never used for MLP training or checkpoint selection. We compare their frequency shifts with the FEM and the MLP on the same cases.</p></div>
+      <div class="control-bar slim"><label class="select-wrap">Measured frequency <select id="expModeSelect"><option value="all">Mean of modes 2–4</option><option value="2">Mode 2</option><option value="3">Mode 3</option><option value="4">Mode 4</option></select></label><span class="unit-badge">ERROR IN PERCENTAGE POINTS (pp)</span></div>
+      <div class="chart-card wide"><svg id="physicalChart" class="physical-chart" role="img" aria-label="Three-stage error comparison between MLP, FEM, and measurements"></svg></div>
+      <div class="physical-summary" id="physicalSummary" aria-live="polite"></div>
+      <div class="error-explain"><div class="error-equation">MLP → measurement <span>=</span> MLP → FEM <span>+</span> FEM → measurement</div><p>This identity holds for each <strong>signed</strong> case error. The mean absolute errors shown above do not add, because opposite signs can partly cancel. Training only on FEM data cannot teach the MLP how the real beam differs from the FEM.</p></div>
+    </section>
+
+    <section class="takeaways section-shell" id="conclusions">
+      <div class="section-heading compact"><span class="section-index">05 / INTERPRETATION</span><h2>What this experiment supports.</h2></div>
+      <div class="takeaway-grid"><article><span>01</span><h3>LHD helps with a tight budget</h3><p>At 200 cases, the LHD-trained MLP has lower interior FEM error than the grid-trained MLP.</p></article><article><span>02</span><h3>The beam end remains difficult</h3><p>At 120 cm, the grid-trained MLP performs better at both tested budgets. That position lies outside every training design.</p></article><article><span>03</span><h3>Sampling cannot fix physics</h3><p>Changing FEM training points does not remove the FEM's discrepancy with measurements. That needs a separate calibration study.</p></article></div>
+      <p class="takeaway-caveat">Three seeds and five held-out positions make this a controlled comparison of these designs—not a universal claim about LHD. The full results, per-mode values, and methods are in the notebook.</p>
+    </section>
+
+    <section class="reproduce section-shell" id="reproduce">
+      <div><span class="section-index">06 / REPRODUCE</span><h2>Inspect first.<br><em>Run when ready.</em></h2><p>This page works offline after downloading the repository. The saved notebooks show figures immediately. To regenerate FEM and MLP results, follow the platform-neutral setup instructions in the README.</p><a class="button button-primary" href="../README.md">Open setup guide <span aria-hidden="true">↗</span></a></div>
+      <div class="resource-list"><a href="../notebooks/hannover_validacion_fem.ipynb"><span>01</span><strong>FEM and measurement validation</strong><span aria-hidden="true">↗</span></a><a href="../notebooks/mlp_fem_training.ipynb"><span>02</span><strong>MLP training and error chain</strong><span aria-hidden="true">↗</span></a><a href="../notebooks/doe_grid_vs_lhd.ipynb"><span>03</span><strong>Grid versus LHD notebook</strong><span aria-hidden="true">↗</span></a><a href="../data/generated/doe_comparison/manifest.json"><span>04</span><strong>Experiment manifest and source hashes</strong><span aria-hidden="true">↗</span></a></div>
+    </section>
+  </main>
+
+  <footer class="site-footer section-shell"><div><strong>STRUCTURAL<span class="brand-separator">/</span>SURROGATE</strong><span>Research demonstrator · synthetic FEM labels and measured validation</span></div><p>Original data and MATLAB model: <a href="https://doi.org/10.25835/dr0bu9oq" rel="noopener noreferrer">Leibniz Universität Hannover cantilever beam dataset ↗</a></p><small id="provenance"></small></footer>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

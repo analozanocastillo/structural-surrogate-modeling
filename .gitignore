@@ -10,7 +10,6 @@ data/raw/*
 data/extracted/*
 !data/extracted/.gitkeep
 results/
-docs/
 outputs/
 work/
 *.part

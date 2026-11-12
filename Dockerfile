@@ -18,6 +18,7 @@ COPY README.md setup_hannover.sh ./
 COPY src/ ./src/
 COPY tests/ ./tests/
 COPY notebooks/ ./notebooks/
+COPY docs/ ./docs/
 COPY data/reference/ ./data/reference/
 COPY data/generated/ ./data/generated/
 RUN chmod +x setup_hannover.sh && mkdir -p data/raw data/extracted
