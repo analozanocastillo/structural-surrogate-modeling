@@ -2,13 +2,13 @@
 
 This project develops a workflow for machine learning surrogates of structural simulations. Its current case study examines how an added point mass changes the natural frequencies of a cantilever beam. It translates the finite element model (FEM) supplied with the [Leibniz Universität Hannover cantilever beam dataset](https://data.uni-hannover.de/en/dataset/cantilever-beam-dataset-for-structural-change-localisation) from MATLAB to Python, checks numerical agreement, and compares FEM predictions with measured modal frequencies.
 
-The longer-term objective is to use the Python FEM to generate training examples for a machine learning surrogate that maps **mass and position** to natural frequencies. That dataset generation and surrogate training have **not yet been implemented**. The current repository establishes and evaluates the numerical baseline first.
+The longer-term objective is a machine learning surrogate that maps **mass and position** to natural frequencies. A first reproducible FEM training dataset is now included; MLP training has **not yet been implemented**. The numerical baseline remains the reference for evaluating that future model.
 
 ## Research questions and workflow
 
 1. **MATLAB to Python:** Does the Python implementation reproduce the original FEM matrices and modal frequencies for the same added-mass configurations?
 2. **FEM to experiment:** How closely does the numerical model describe the measured frequency shifts when mass and position change?
-3. **Next stage:** Which FEM-generated configurations should be used to train a surrogate, and how should its predictions be evaluated against independent measurements?
+3. **Next stage:** How accurately can an MLP learn the FEM response on held-out positions, and how will it compare with independent measurements?
 
 The original Hannover archive provides the MATLAB model and experimental data. `src/mass_changes.py` computes the FEM response; `notebooks/hannover_validacion_fem.ipynb` performs the validation and produces the figures. Experimental measurements are used for **evaluation**, not presented as synthetic FEM training data.
 
@@ -33,6 +33,21 @@ The experimental modal file identifies three frequencies, compared here with **F
 
 These are results from the executed [validation notebook](notebooks/hannover_validacion_fem.ipynb), not claims of exact physical agreement. The largest shift errors occur at **100 cm and 50 g**. Python–MATLAB agreement checks the translation; FEM–experiment differences measure limitations of the numerical model and the comparison procedure.
 
+## FEM dataset for the future MLP
+
+Run `python src/generate_fem_dataset.py` after `setup_hannover.sh` to regenerate `data/generated/fem_dataset.csv` and its metadata JSON. This uses **only** `LiveBeamData.mat` and the Python FEM; measured modal frequencies never become training labels. Following the original MATLAB convention, each centimetre position label is passed as the model node index.
+
+The table contains **1,176 unique mass–position cases**: positions from 10 to 120 cm every 2 cm, crossed with 1 g and 2.5–50 g every 2.5 g. Each row has MLP inputs `position_cm` and `mass_g`, six targets `f1_hz`–`f6_hz`, plus `node` and `split`. There is no zero-mass row repeated at every position; the six reference frequencies are stored once in the metadata.
+
+| Split | Held-out positions (cm) | Cases | Purpose |
+|---|---|---:|---|
+| `train` | Other positions in the grid | 966 | Fit the MLP |
+| `val` | 30, 50, 70, 90, 110 | 105 | Tune and select the MLP |
+| `test` | 40, 60, 80, 100 | 84 | Check interpolation at experimental positions |
+| `test_edge` | 120 | 21 | Check the beam-end position separately |
+
+All splits use the same mass values; this design checks **generalization to unseen positions**, not extrapolation to new masses. The 120 cm edge test lies just outside the training position range. The 34 measured configurations remain a separate physical benchmark and should not be used to tune the FEM-trained MLP. The JSON records split membership, units, reference frequencies, and SHA-256 hashes of the source MAT file, Python model, and CSV. A maximum upward frequency difference of `2.83 × 10⁻⁶ Hz` appears in near-zero-shift cases; the generator accepts this as numerical solver tolerance without changing the FEM.
+
 ## Repository structure
 
 ```text
@@ -46,14 +61,17 @@ structural-surrogate-modeling/
 ├── requirements-docker.txt            Local dependencies plus JupyterLab
 ├── setup_hannover.sh                  Downloads and checks the official source files
 ├── src/
-│   └── mass_changes.py               Python port of the modal FEM
+│   ├── mass_changes.py               Python port of the modal FEM
+│   └── generate_fem_dataset.py       Deterministic FEM table generator
 ├── tests/
-│   └── test_mass_changes.py           Synthetic numerical smoke test
+│   ├── test_mass_changes.py           Synthetic numerical smoke test
+│   └── test_dataset.py                Dataset and split integrity checks
 ├── notebooks/
 │   └── hannover_validacion_fem.ipynb  MATLAB parity and experimental comparison
 └── data/
     ├── raw/                           Official ZIP, PDF, and hashes (downloaded; ignored)
     ├── extracted/                     Original MATLAB and measurement files (ignored)
+    ├── generated/                     Small FEM dataset and metadata (tracked)
     └── reference/
         └── matlab_parity_reference.npz Small saved MATLAB parity fixture
 ```
@@ -88,6 +106,7 @@ Use Python 3.10 and an internet connection for the first data setup:
 bash setup_hannover.sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python src/generate_fem_dataset.py
 .venv/bin/python -m pytest -q -p no:cacheprovider tests/
 .venv/bin/python src/mass_changes.py \
   --mat data/extracted/Code_Veröffentlichung/Data/BeamData/LiveBeamData.mat \
@@ -101,7 +120,7 @@ Open the notebook in VS Code or Jupyter with the `.venv` kernel and run all cell
 - The numerical parity check covers selected mass–position configurations and FEM matrices. It does not prove that every possible input is physically accurate.
 - The experimental comparison uses identified modal estimates, averaged within each mass configuration. Measurement uncertainty and model assumptions can both contribute to residual differences.
 - A future surrogate trained on FEM outputs will approximate the FEM and may inherit its discrepancies relative to measurements. Experimental configurations should be reserved for independent evaluation; they should not be treated as additional FEM-generated labels without a defined data-fusion method.
-- The repository currently contains no automated FEM dataset generator and no PyTorch model.
+- The repository contains a first deterministic FEM dataset and no trained PyTorch model. Split performance and experimental generalization remain to be measured.
 
 ## Source, attribution, and use
 
