@@ -70,7 +70,7 @@ def generate(mat_path: Path, output_path: Path) -> dict:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="") as target:
-        writer = csv.writer(target)
+        writer = csv.writer(target, lineterminator="\n")
         writer.writerow(COLUMNS)
         writer.writerows(rows)
 

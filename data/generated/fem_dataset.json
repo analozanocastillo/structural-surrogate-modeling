@@ -184,7 +184,7 @@
   "numerical_monotonicity_tolerance_hz": 1e-05,
   "mat_sha256": "fb6337114290bda141eaea073f20e04ac3043f7b34f008f7194344a9e0886238",
   "model_sha256": "d39919d43a47582b840c29b3a4110ee7c734992fdec416e6ca100306ce4c2ddb",
-  "csv_sha256": "894007cbc97d092d75d52753650689df26698c15a8815ff6a77ebab58daed301",
+  "csv_sha256": "79b31a7ca1ebc08f6cdb59eb34a3420a8c880e34c15e782560415d095174d2b4",
   "experimental_data_included": false,
   "notes": "test holds measured interior positions; test_edge holds the 120 cm boundary. All splits share the same mass values."
 }
